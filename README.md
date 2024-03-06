@@ -21,7 +21,9 @@ source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 2. Install Dependencies
 Install the required libraries using pip:
 
+```bash
 pip install accelerate peft bitsandbytes transformers trl datasets deepspeed
+```
 
 3. Run the Fine-Tuning Script On One GPU
 The fine-tuning script, script.py, is prepared for execution along with a config file ds_config.json. To run the script with DeepSpeed, execute the following command in your terminal in the same directory as the above two files (or adjust file paths respectively):
