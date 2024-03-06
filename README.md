@@ -1,6 +1,6 @@
-# Fine-Tuning Mistral-7B with HuggingFace Transformers and DeepSpeed
+# Fine-Tuning Llama 13B with HuggingFace Transformers and DeepSpeed
 
-This README provides instructions for fine-tuning the "mistralai/Mistral-7B-v0.1" model on the "timdettmers/openassistant-guanaco" dataset using HuggingFace Transformers and DeepSpeed.
+This README provides instructions for fine-tuning the Llama 13B model on the "alpaca-gpt-4" dataset using HuggingFace Transformers and DeepSpeed.
 
 ## Prerequisites
 
@@ -18,14 +18,14 @@ python -m venv venv
 source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 ```
 
-2. Install Dependencies
+### 2. Install Dependencies
 Install the required libraries using pip:
 
 ```bash
 pip install accelerate peft bitsandbytes transformers trl datasets deepspeed
 ```
 
-3. Run the Fine-Tuning Script On One GPU
+### 3. Run the Fine-Tuning Script On One GPU
 The fine-tuning script, script.py, is prepared for execution along with a config file ds_config.json. To run the script with DeepSpeed, execute the following command in your terminal in the same directory as the above two files (or adjust file paths respectively):
 
 ```bash
