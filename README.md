@@ -47,20 +47,19 @@ If you encounter a matrix multiplication error when running the script, you may 
 !pip install git+https://github.com/huggingface/transformers@v4.31-release
 ```
 
-### 6. Run the Fine-Tuning Script On One GPU
+### 6. Run the Fine-Tuning Script on One GPU
 The fine-tuning script, script.py, is prepared for execution along with a config file ds_config.json. To run the script with DeepSpeed, execute the following command in your terminal in the same directory as the above two files (or adjust file paths respectively):
 
 ```bash
 deepspeed --num_nodes 1 --num_gpus=1 script.py
 ```
 
-### 7. Run the Fine-Tuning Script On Multiple GPUs
-Modify ds_config.json and replace m with a specific number of GPU nodes and n with a specific number of GPUs per node in the commend below:
+### 7. Run the Fine-Tuning Script on Multiple GPUs
+Modify ds_config.json and replace m with a specific number of GPU nodes and n with a specific number of GPUs per node in the command below. For more details on running DeepSpeed, see the References section below.
 
 ```bash
 deepspeed --num_nodes {m} --num_gpus={n} script.py
 ```
-For more details on running DeepSpeed, see the References below.
 
 ### 8. References
 * [DeepSpeed AI](https://www.deepspeed.ai/)
