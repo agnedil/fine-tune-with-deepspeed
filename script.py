@@ -116,7 +116,7 @@ save_steps = 10
 logging_steps = 10
 learning_rate = 2e-4
 max_grad_norm = 0.3
-max_steps = 1000
+max_steps = 500
 warmup_ratio = 0.03
 lr_scheduler_type = "constant"
 

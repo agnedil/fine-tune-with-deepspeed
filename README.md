@@ -23,16 +23,22 @@ source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
 nvcc --version
 ```
 
-### 3. Install Dependencies
+### 3. If you need access to HuggingFace Hub
+If you need access to HuggingFace Hub, provide the access token after running this commend:
+```bash
+huggingface-cli login
+```
+
+### 4. Install Dependencies
 Install the required libraries using pip:
 
 ```bash
 pip install accelerate peft bitsandbytes transformers trl datasets deepspeed
 ```
 
-### 4. Run the Fine-Tuning Script On One GPU
+### 5. Run the Fine-Tuning Script On One GPU
 The fine-tuning script, script.py, is prepared for execution along with a config file ds_config.json. To run the script with DeepSpeed, execute the following command in your terminal in the same directory as the above two files (or adjust file paths respectively):
 
 ```bash
-deepspeed --num_nodes 1 --num_gpus=1 training_script.py
+deepspeed --num_nodes 1 --num_gpus=1 script.py
 ```
