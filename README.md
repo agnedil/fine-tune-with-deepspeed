@@ -35,6 +35,10 @@ Install the required libraries using pip:
 ```bash
 pip install accelerate peft bitsandbytes transformers trl datasets deepspeed
 ```
+If you encounter a matrix multiplication error, downgrade the transformers package according to [this issue](https://discuss.huggingface.co/t/help-with-llama-2-finetuning-setup/50035/4):
+```bash
+!pip install git+https://github.com/huggingface/transformers@v4.31-release
+```
 
 ### 5. Run the Fine-Tuning Script On One GPU
 The fine-tuning script, script.py, is prepared for execution along with a config file ds_config.json. To run the script with DeepSpeed, execute the following command in your terminal in the same directory as the above two files (or adjust file paths respectively):
