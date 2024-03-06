@@ -24,9 +24,8 @@ from transformers import (
     BitsAndBytesConfig,
     TrainingArguments,
 )
-from peft import LoraConfig, prepare_model_for_kbit_training, get_peft_model
+from peft import LoraConfig
 from trl import SFTTrainer
-#import deepspeed
 
 
 # functions to build prompts for the LLM being fine-tuned
@@ -74,47 +73,44 @@ def formatting_func(sample: dict) -> str:
 
 
 # load training datasets from HuggingFace hub
+print('\nDownloading dataset\n')
 dataset_alpaca = load_dataset("vicgalle/alpaca-gpt4", split="train[:1000]")
 
+
 # Base Llama 2 13b model to be fine-tuned
-base_model_id = "NousResearch/Llama-2-13b-chat-hf"
+base_model = "NousResearch/Llama-2-13b-chat-hf"
+
+# Resulting fine-tuned model
+new_model = "llama-2-13b-alpaca-gpt4"
+
+# 4-bit quantization parameters
 quantization_config = BitsAndBytesConfig(
     load_in_4bit=True,
-    bnb_4bit_use_double_quant=True,
-    bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=torch.bfloat16
+    bnb_4bit_compute_dtype=torch.float16,
+    bnb_4bit_quant_type="nf4"
 )
-model = AutoModelForCausalLM.from_pretrained(base_model_id, quantization_config=quantization_config)
 
-# load tokenizer
-tokenizer = AutoTokenizer.from_pretrained(
-    base_model_id,
-    model_max_length=512,
-    padding_side="left",
-    add_eos_token=True)
-tokenizer.pad_token = tokenizer.eos_token
+# Load model, load tokenizer, add special tokens
+print('\nLoading model:\n')
+model = AutoModelForCausalLM.from_pretrained(base_model, quantization_config=quantization_config)
+tokenizer = AutoTokenizer.from_pretrained(base_model, trust_remote_code=True)
+tokenizer.add_special_tokens({'pad_token': '<PAD>'})
 
-# prepare model for fine-tuning
-model.gradient_checkpointing_enable()
-model = prepare_model_for_kbit_training(model)
 
-# low-rank adaptation (LORA) parameters
-config = LoraConfig(
+# Low-rank adaptation (LORA) parameters
+lora_config = LoraConfig(
     r=8,
-    lora_alpha=8,
-    target_modules=[ "q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj", "lm_head", ],
+    target_modules=["q_proj", "o_proj", "k_proj", "v_proj", "gate_proj", "up_proj", "down_proj"],
     bias="none",
-    lora_dropout=0.05,  # Conventional
     task_type="CAUSAL_LM",
 )
 
-# prepare model for parameter efficient fine-tuning (PEFT)
-model = get_peft_model(model, config)
+model.add_adapter(lora_config)
 
 # set training arguments
 YOUR_HF_USERNAME = "agnedil"
-new_model_id = "llama-2-13b-alpaca-gpt4"
-output_dir = f"{YOUR_HF_USERNAME}/{new_model_id}"
+
+output_dir = f"{YOUR_HF_USERNAME}/{new_model}"
 per_device_train_batch_size = 2
 gradient_accumulation_steps = 4
 optim = "paged_adamw_8bit"
@@ -126,7 +122,6 @@ max_steps = 500
 warmup_ratio = 0.03
 lr_scheduler_type = "constant"
 
-# set training arguments
 training_arguments = TrainingArguments(
     output_dir=output_dir,
     per_device_train_batch_size=per_device_train_batch_size,
@@ -139,7 +134,6 @@ training_arguments = TrainingArguments(
     max_steps=max_steps,
     warmup_ratio=warmup_ratio,
     lr_scheduler_type=lr_scheduler_type,
-    deespeed="ds_config.json",
     gradient_checkpointing=True,
     push_to_hub=True,
 )
@@ -151,7 +145,7 @@ trainer = SFTTrainer(
     train_dataset=dataset_alpaca,
     packing=True,
     tokenizer=tokenizer,
-    max_seq_length=512,
+    max_seq_length=1024,
     formatting_func=formatting_func,
 )
 
@@ -159,5 +153,5 @@ trainer = SFTTrainer(
 trainer.train()
 
 # save model and tokenizer
-trainer.model.save_pretrained(new_model_id)
-trainer.tokenizer.save_pretrained(new_model_id)
+trainer.model.save_pretrained(new_model)
+trainer.tokenizer.save_pretrained(new_model)
