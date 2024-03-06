@@ -139,7 +139,7 @@ training_arguments = TrainingArguments(
     max_steps=max_steps,
     warmup_ratio=warmup_ratio,
     lr_scheduler_type=lr_scheduler_type,
-    deespeed="ds_config.json",
+    deepspeed="ds_config.json",
     gradient_checkpointing=True,
     push_to_hub=True,
 )
